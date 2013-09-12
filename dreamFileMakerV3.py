@@ -5,7 +5,7 @@
 
 #///////////////////////////////////////////////////////////////////////
 __author__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)"#/
-__version__ = "1.0"				   		     						  #/
+__version__ = "2.0"				   		     						  #/
 __copyright__ = "Copyright (c) 2013-2014 BHN"                         #/
 __license__ = "GROUPE DEV IJPB"			                     		  #/
 #///////////////////////////////////////////////////////////////////////
