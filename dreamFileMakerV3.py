@@ -786,6 +786,21 @@ def	dreamFile_Filter(DREAM_FILE,PATH_IN_PUT):
 
 	#SUPPRIMER FICHIER DREAM_FILE NON FILTRE
 	os.system("rm " +  PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,""))
+	
+	#CREATION DU FICHIER SANS EXONS
+	#__ouverture du fichier
+	dfinPath=PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt") + "_FINAL.txt"
+	dfoutPath=PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip("_snpeff_snpsift_OneLineEff_DF_FINAL.txt") + "_FINAL_WO_EXONS.txt"
+	dfin = open (dfinPath ,"r")
+	dfout = open (dfoutPath,"w")
+	
+	for line in dfin:
+		line=line.rstrip("\n\r")
+		if "Exon" not in line:
+			dfout.write(line+"\n")
+	dfin.close()
+	dfout.close()
+		
 #------------------------------------------------------------------------------------------------------------------- TRAITEMENT___FIN
 
 #------------------------------------------------------------------------------------------------------------------- TEST_PRELIM___DEBUT
