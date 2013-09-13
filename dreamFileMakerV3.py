@@ -457,7 +457,7 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 		finrecup = open(UNTREATED_CASES_FILE,"a")
 		finrecup.write("Fonction de traitement du champs effet : "+ "\n")
 		finrecup.write(str(geneList_details) + "\n")
-		logging.info("WARNING : Untreated Name Effect. Problem with annotations is suspectd. "+ str(geneList_details))
+		logging.info("WARNING : Untreated Name Effect. Problem with annotations is suspected. "+ str(geneList_details))
 		finrecup.close()
 		
 		return RECUP_Effect
@@ -749,27 +749,35 @@ def parsing_vcf(IN_PUT_VCF,DREAM_FILE,UNTREATED_CASES_FILE):
 	print ("FIN ___ ETAPES DE TRAITEMENT DU FICHIER .VCF")	
 
 #FILTRER LE DREAM_FILE
-def	dreamFile_Filter(DREAM_FILE, PATH_IN_PUT):
-	if (PATH_IN_PUT == ""):
-		PATH_IN_PUT=PATH_IN_PUT.replace("",".")
-		
+def	dreamFile_Filter(DREAM_FILE,PATH_IN_PUT):
+	
+	PATH_DREAM_FILE = os.path.dirname(DREAM_FILE).strip("/")
 	#*** TRIE DU FICHIER PARSER POUR AVOIR LES UNIQUES
 	#PREPARATION DU SORTE UNIQ, TRIER LE FICHIER PAR CHR, POS, ID_GENE
-	cmd0="sort -k1n,1n -n -k2n,2n -n -k17n,17n -d "+ PATH_IN_PUT + "/" + DREAM_FILE
-	cmd1 = cmd0+"> "+ PATH_IN_PUT + "/" + DREAM_FILE.strip(".txt")+"_sorted.txt"
+	cmd0="sort -k1n,1n -n -k2n,2n -n -k17n,17n -d "+ PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"")
+	
+	cmd1 = cmd0+"> "+ PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted.txt"
 	os.system(cmd1)
+	
 	#OBTENTION DES UNIQUES
-	cmd2 =" sort -u " + PATH_IN_PUT + "/" + DREAM_FILE.strip(".txt")+"_sorted.txt"
-	cmd3 = cmd2 +"> "+ PATH_IN_PUT + "/" + DREAM_FILE.strip(".txt")+"_sorted_Uniq.txt"
+	cmd2 =" sort -u " + PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted.txt"
+	cmd3 = cmd2 +"> "+ PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted_Uniq.txt"
 	os.system(cmd3)	
-	os.system("rm " + PATH_IN_PUT + "/" + DREAM_FILE.strip(".txt")+"_sorted.txt")
+	
+	#SUPPRIMER FICHIER INTERMEDIAIRE 1
+	os.system("rm " + PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted.txt")
+	
 	#CREATION DU FICHIER LISIBLE PAR LES BIOLOGISTES
-	cmd4 = "sort -k1n,1n -n -k2n,2n -n -k17n,17n -d " + PATH_IN_PUT + "/" + DREAM_FILE.strip(".txt")+"_sorted_Uniq.txt"
-	cmd5 = cmd4 + "> " + PATH_IN_PUT + "/" + DREAM_FILE.strip(".txt") + "_FINAL.txt"
+	cmd4 = "sort -k1n,1n -n -k2n,2n -n -k17n,17n -d " + PATH_IN_PUT + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted_Uniq.txt"
+	cmd5 = cmd4 + "> " + PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt") + "_FINAL.txt"
+	
 	os.system(cmd5)
-	os.system("rm " +  PATH_IN_PUT + "/" + DREAM_FILE.strip(".txt")+"_sorted_Uniq.txt")
-	os.system("rm " +  PATH_IN_PUT + "/" + DREAM_FILE)
-		
+	
+	#SUPPRIMER FICHIER INTERMEDIAIRE 2
+	os.system("rm " +  PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted_Uniq.txt")
+
+	#SUPPRIMER FICHIER DREAM_FILE NON FILTRE
+	os.system("rm " +  PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,""))
 #------------------------------------------------------------------------------------------------------------------- TRAITEMENT___FIN
 
 #------------------------------------------------------------------------------------------------------------------- TEST_PRELIM___DEBUT
@@ -837,7 +845,9 @@ def verif_file_not_empty(fileName):
 def main(argv):
 	#FONCTION DE VERIFICATION DES ARGUMENTS --
 	IN_PUT_VCF = verif_arg_nbr(argv)
-	PATH_IN_PUT= os.path.dirname(IN_PUT_VCF)
+
+	PATH_IN_PUT = os.path.dirname(IN_PUT_VCF).strip("/")
+	#print PATH_IN_PUT
 	if (PATH_IN_PUT == ""):
 		PATH_IN_PUT=PATH_IN_PUT.replace("",".")
 		
@@ -848,6 +858,7 @@ def main(argv):
 	log_report(LOG_FILE)
 	#__ CREATION DU FICHIER CONTENANT LES CAS NON TRAITES  --
 	UNTREATED_CASES_FILE = PATH_IN_PUT+"/UntreatedCasesFile_"+file_name_extraction(IN_PUT_VCF)+".txt"
+	
 	#__ CREATION DU FICHIER TXT FORMATE A PARTIR DU VCF  --
 	#DREAM_FILE = PATH_IN_PUT+"/"+file_name_extraction(IN_PUT_VCF)+"_"+str(now.year)+str(now.month)+str(now.day)+"_DF.txt"
 	DREAM_FILE = PATH_IN_PUT+"/"+file_name_extraction(IN_PUT_VCF)+"_"+"DF.txt"
@@ -871,7 +882,7 @@ def main(argv):
 		parsing_vcf(IN_PUT_VCF,DREAM_FILE,UNTREATED_CASES_FILE)
 
 		#FILTRER LE FICHIER FORMATER
-		dreamFile_Filter(DREAM_FILE, PATH_IN_PUT)
+		dreamFile_Filter(DREAM_FILE,PATH_IN_PUT)
 		
 	else:
 		logging.info("FIN ___ ETAPES DE VERIFICATION DES ARGUMENTS")
