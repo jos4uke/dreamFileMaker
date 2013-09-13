@@ -473,8 +473,12 @@ def snp_affich(GENOME,POS,REF,ALT,QUALITY,listInfo,listCln9,DREAM_FILE,UNTREATED
 		
 	CHANGE_TYPE ="SNP"
 	COVERAGE = listInfo[0].replace("DP=","")
-			
-	CUSTOM_VARIATION = REF + "_" + ALT.replace(REF,"")
+	
+	#old version 		
+	#CUSTOM_VARIATION = REF + "_" + ALT.replace(REF,"")
+	
+	#new version 
+	CUSTOM_VARIATION = REF + "_" + ALT
 	CUSTOM_SNP = GENOME + "_" + POS + "_" + CUSTOM_VARIATION
 
 	RecupFirstClnVCF = GENOME+ "\t" + POS+ "\t" + REF + "\t" + ALT+ "\t" + CUSTOM_SNP + "\t" + CUSTOM_VARIATION + "\t" + CHANGE_TYPE + "\t"
@@ -527,7 +531,11 @@ def snp_affich(GENOME,POS,REF,ALT,QUALITY,listInfo,listCln9,DREAM_FILE,UNTREATED
 def affichClnIndel(GENOME,POS,REF,ALT,QUALITY,CHANGE_TYPE,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE):
 	COVERAGE = listInfo[1].replace("DP=","")
 			
-	CUSTOM_VARIATION = REF + "_" + ALT.replace(REF,"")
+	#old version 		
+	#CUSTOM_VARIATION = REF + "_" + ALT.replace(REF,"")
+	
+	#new version 
+	CUSTOM_VARIATION = REF + "_" + ALT
 	CUSTOM_SNP = GENOME + "_" + POS + "_" + CUSTOM_VARIATION
 
 	RecupFirstClnVCF = GENOME+ "\t" + POS+ "\t" + REF + "\t" + ALT+ "\t" + CUSTOM_SNP + "\t" + CUSTOM_VARIATION + "\t" + CHANGE_TYPE + "\t"
