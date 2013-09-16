@@ -777,7 +777,7 @@ def	dreamFile_Filter(DREAM_FILE,PATH_IN_PUT):
 	
 	#CREATION DU FICHIER LISIBLE PAR LES BIOLOGISTES
 	cmd4 = "sort -k1n,1n -n -k2n,2n -n -k17n,17n -d " + PATH_IN_PUT + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted_Uniq.txt"
-	cmd5 = cmd4 + "> " + PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt") + "_FINAL.txt"
+	cmd5 = cmd4 + "> " + PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt") + "_DF.txt"
 	
 	os.system(cmd5)
 	
@@ -789,8 +789,8 @@ def	dreamFile_Filter(DREAM_FILE,PATH_IN_PUT):
 	
 	#CREATION DU FICHIER SANS EXONS
 	#__ouverture du fichier
-	dfinPath=PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt") + "_FINAL.txt"
-	dfoutPath=PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip("_snpeff_snpsift_OneLineEff_DF_FINAL.txt") + "_FINAL_WO_EXONS.txt"
+	dfinPath=PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt") + "_DF.txt"
+	dfoutPath=PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip("_snpeff_snpsift_OneLineEff_DF.txt") + "_DF_WO_EXONS.txt"
 	dfin = open (dfinPath ,"r")
 	dfout = open (dfoutPath,"w")
 	
