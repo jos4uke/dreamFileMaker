@@ -80,7 +80,7 @@ def header_of_dreamFile(DREAM_FILE):
 	""" ****  FONCTION :  ****  \n\theader_of_dreamFile(DREAM_FILE) : Fonction qui ecrit l'entete du fichier de rêve. ****  """
 	#ECRITURE DE L ENTETE DANS LE DREAM FILE
 	fout_parsVCF=open(DREAM_FILE,"w")
-	fout_parsVCF.write("CHROMOSOME\tPOSITION\tREFERENCE\tCHANGE\tCUSTOM_SNP\tCUSTOM_VARIATION\tCHANGE_TYPE\tDP4_REF_FWD\tDP4_REF_REV\tDP4_ALT_FWD\tDP4_ALT_REV\tDP4_TOTAL_REF\tDP4_TOTAL_ALT\tCOVERAGE\tHOM_HET\tQUALITY\tID_GENE\tEFFECT\tNBR_BASE\tOLD_AA/NEW_AA\tOLD_CODON/NEW_CODON\tCODON_NUM(CDS)\tCODON_DEGENERACY\n")
+	fout_parsVCF.write("CHROMOSOME\tPOSITION\tREFERENCE\tCHANGE\tCUSTOM_SNP\tCUSTOM_VARIATION\tCHANGE_TYPE\tDP4_REF_FWD\tDP4_REF_REV\tDP4_ALT_FWD\tDP4_ALT_REV\tDP4_TOTAL_REF\tDP4_TOTAL_ALT\tCOVERAGE\tHOM_HET\tQUALITY\tID_GENE\tID_TRANSCRIT\tEFFECT\tNBR_BASE\tOLD_AA/NEW_AA\tOLD_CODON/NEW_CODON\tCODON_NUM(CDS)\tCODON_DEGENERACY\n")
 	fout_parsVCF.close()
 
 
@@ -103,8 +103,8 @@ def geneID_formatClean(gene):
 	ID_GENE = ID_GENE.replace("'])","")
 	ID_GENE = ID_GENE.replace("Gene:","")
 	ID_GENE = ID_GENE.replace("Gene_","")
-	ID_GENE = ID_GENE.replace("Transcript:","")
-	ID_GENE = ID_GENE.replace("exon:","")
+	#ID_GENE = ID_GENE.replace("Transcript:","")
+	#ID_GENE = ID_GENE.replace("exon:","")
 	return ID_GENE
 	
 #FONCTION FORMATAGE GENE ID IN EFF
@@ -134,8 +134,8 @@ def geneID_format_EFF_OL(line):
 	
 	line= line.replace("Gene:","")
 	line = line.replace("Gene_","")
-	line = line.replace("Transcript:","")
-	line = line.replace("exon:","")
+	#line = line.replace("Transcript:","")
+	#line = line.replace("exon:","")
 	return line
 
 #FONCTION FORMATAGE GENE ID
@@ -143,8 +143,8 @@ def geneID_format(info):
 	ID_GENE = info[0].replace(")","")
 	ID_GENE = ID_GENE.replace("Gene:","")
 	ID_GENE = ID_GENE.replace("Gene_","")
-	ID_GENE = ID_GENE.replace("Transcript:","")
-	ID_GENE = ID_GENE.replace("exon:","")
+	#ID_GENE = ID_GENE.replace("Transcript:","")
+	#ID_GENE = ID_GENE.replace("exon:","")
 	return ID_GENE
 	
 
@@ -162,7 +162,8 @@ def trait_OneLineVcfFile(IN_PUT_VCF):
 	lines = fin.readlines()
 
 	for line in lines:
-		line=geneID_format_EFF_OL(line)
+		#line=geneID_format_EFF_OL(line)
+		line = line
 		#print line
 		linesList.append(line)
 	fin.close()
@@ -272,7 +273,7 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 	nbr_gene=0
 	nbr_effet=0
 	
-	RECUP_Effect =  "Untreated Name Effect. Problem with annotations is suspectd."
+	RECUP_Effect =  "Untreated Name Effect. Problem with annotations is suspected."
 	
 	listEffdetails = []
 	listEffect = []
@@ -283,6 +284,7 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 	
 	
 	ID_GENE = "na"
+	ID_TRANSCRIT = "na"
 	EFFECT_NAME= "na"
 	NBR_BASE = "na"
 	OLD_AA_NEW_AA = "na"
@@ -290,7 +292,7 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 	CODON_NUM_CDS = "na"
 	CODON_DEGENERACY = "na"
 	
-	#RECUP_Effect = ID_GENE + "\t" + EFFECT_NAME + "\t"+  NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
+	#RECUP_Effect = ID_GENE + "\t" +ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t"+  NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
 
 	#TOUT LE CHAMP EFFECT
 	listEffect = listInfo[clnEff].replace("EFF=","")
@@ -309,7 +311,7 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 	
 	#RECUPERATION DE LA LISTE DES GENES
 	geneList_details = listEffect.split("|")
-
+	#print geneList_details
 	#VERIFICATION NBR DE CLN DANS LE CHAMPS EFFET
 	#if len(geneList_details) == 11:
 		#print geneList_details
@@ -327,7 +329,7 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 		geneList = geneList_details[5] +"*"+ geneList_details[8]
 		geneList = geneList.split("*")
 		geneList_F = set(geneList)
-		
+		#print geneList
 		#RECUPERATION AA
 		OLD_AA_NEW_AA = recupAA(geneList_details)
 		
@@ -335,14 +337,16 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 		if len(geneList_F )< 2:
 			#print geneList
 			#print geneList_details
+			#print geneList
 			ID_GENE = geneList[0]
+			
 			#print ID_GENE
 			
 			#RECUPERATION DU CODON DEGENERE
 			CODON_DEGENERACY = geneList_details[len(geneList_details)-1].replace(")","")
 			#print CODON_DEGENERACY
 			 
-			RECUP_Effect = ID_GENE + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
+			RECUP_Effect = ID_GENE + "\t" + ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
 			#print RECUP_Effect   #ok
 			return RECUP_Effect
 			
@@ -361,18 +365,24 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 						#print recupinfo
 						getGeneCodon = recupinfo.split("*")
 						#print getGeneCodon
-						ID_GENE = getGeneCodon[0]
+						ID_GENE = geneList[0]
 						#print ID_GENE
 						CODON_DEGENERACY = getGeneCodon[1]
-						#print getGeneCodon[1]
 						
-						RECUP_Effect = ID_GENE + "\t" + EFFECT_NAME + "\t"+  NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
+						#id_transcrit
+						#print geneList[1]
+						if "Exon" in ID_GENE :
+							ID_TRANSCRIT=  geneList[1]
+						
+						RECUP_Effect = ID_GENE + "\t" + ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
 						#print RECUP_Effect   #ok
 						return RECUP_Effect
 			else:
 					#print geneList_details				
 					for ID_GENE in geneList:
-						RECUP_Effect = ID_GENE + "\t" + EFFECT_NAME + "\t"+  NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
+						if "Exon" in ID_GENE :
+							ID_TRANSCRIT=geneList_details[8]
+						RECUP_Effect = ID_GENE + "\t" + ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
 						#print RECUP_Effect   #ok
 						return RECUP_Effect
 					
@@ -398,12 +408,12 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 			if NBR_BASE == "":
 				NBR_BASE = "na"
 				#print EFFECT_NAME
-				RECUP_Effect = ID_GENE + "\t" + EFFECT_NAME + "\t"+  NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY			
+				RECUP_Effect = ID_GENE + "\t" + ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY		
 				#print RECUP_Effect #ok
 				return RECUP_Effect
 			else:
 				#print EFFECT_NAME
-				RECUP_Effect = ID_GENE + "\t" + EFFECT_NAME + "\t"+  NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
+				RECUP_Effect = ID_GENE + "\t" + ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
 				return RECUP_Effect
 		# CAS DE DEUX GENES	
 		elif len(geneList_F) ==2 : 
@@ -411,7 +421,8 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 			#if "|" not in geneList_details[len(geneList_details)-1]:
 			for ID_GENE in geneList:
 				#print  ID_GENE
-					
+				if "Exon" in ID_GENE :
+					ID_TRANSCRIT = geneList[1]
 				#RECUPERATION DU CODON DEGENERE
 				CODON_DEGENERACY = geneList_details[len(geneList_details)-1].replace(")","")
 				#print CODON_DEGENERACY
@@ -422,33 +433,33 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 				if NBR_BASE == "":
 					NBR_BASE = "na"
 					#print EFFECT_NAME
-					RECUP_Effect = ID_GENE + "\t" + EFFECT_NAME + "\t"+  NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY			
+					RECUP_Effect = ID_GENE + "\t" + ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY		
 					#print RECUP_Effect #ok
 					return RECUP_Effect
 				else:
 					#print EFFECT_NAME
-					RECUP_Effect = ID_GENE + "\t" + EFFECT_NAME + "\t"+  NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY			
+					RECUP_Effect = ID_GENE + "\t" + ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY		
 					#print RECUP_Effect #ok
 					return RECUP_Effect
 				
-	elif EFFECT_NAME ==  "INTERGENIC" :
+	elif EFFECT_NAME ==  "INTERGENIC" :#cas SANS ID_GENE  DONC SANS ID_TRANSCRIT
 		#RECUPERATION DU CODON DEGENERE
 		CODON_DEGENERACY = geneList_details[len(geneList_details)-1].replace(")","")
 		#print geneList_details
 		#print EFFECT_NAME
 		
-		RECUP_Effect = ID_GENE + "\t" + EFFECT_NAME + "\t"+  NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
+		RECUP_Effect = ID_GENE + "\t" + ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
 		#print RECUP_Effect   #ok	
 		return RECUP_Effect
 	
-	elif EFFECT_NAME == "INTRAGENIC" :
+	elif EFFECT_NAME == "INTRAGENIC" : #cas SANS ID_GENE  DONC SANS ID_TRANSCRIT
 		#print geneList_details
 		ID_GENE = geneID_formatClean(geneList_details[5])
 		#RECUPERATION DU CODON DEGENERE
 		CODON_DEGENERACY = geneList_details[len(geneList_details)-1].replace(")","")
 		#print EFFECT_NAME
 		
-		RECUP_Effect = ID_GENE + "\t" + EFFECT_NAME + "\t"+  NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
+		RECUP_Effect = ID_GENE + "\t" + ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY
 		#print RECUP_Effect   #ok	
 		return RECUP_Effect
 
@@ -461,12 +472,6 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 		finrecup.close()
 		
 		return RECUP_Effect
-		
-	#elif EFFECT_NAME == "INTRAGENIC" :
-		#print geneList_details
-	#logging.info("FIN ___ ETAPES DE TRAITEMENT DU CHAMPS EFFET .VCF")
-	#print ("FIN ___ ETAPES DE TRAITEMENT DU CHAMPS EFFET  .VCF")
-
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- FONCTION DE GESTION D'AFFICHAGE  -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#DEBUT
 def snp_affich(GENOME,POS,REF,ALT,QUALITY,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE):
 	""" ****  FONCTION :  ****  \n\tsnp_affich : Fonction qui recupere les colonnes correspondant à un SNP. ****  """
