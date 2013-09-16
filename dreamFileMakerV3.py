@@ -800,6 +800,11 @@ def	dreamFile_Filter(DREAM_FILE,PATH_IN_PUT):
 			dfout.write(line+"\n")
 	dfin.close()
 	dfout.close()
+	
+	#RENOMMER LE FICHIER POUR fileMatch
+	
+	new_DF = PATH_DREAM_FILE + "/" + dfinPath.replace(PATH_IN_PUT,"").strip("_D_FINAL.txt") + "_DF.txt"
+	os.system("mv " + dfinPath + " " + new_DF)
 		
 #------------------------------------------------------------------------------------------------------------------- TRAITEMENT___FIN
 
