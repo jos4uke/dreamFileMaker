@@ -5,7 +5,7 @@
 
 #///////////////////////////////////////////////////////////////////////
 __author__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)"#/
-__version__ = "v1.1.2"				   		     				      #/
+__version__ = "v1.1.3"				   		     				      #/
 __copyright__ = "Copyright (c) 2013-2014 BHN"                         #/
 __license__ = "GROUPE DEV IJPB"			                     		  #/
 #///////////////////////////////////////////////////////////////////////
@@ -758,39 +758,42 @@ def parsing_vcf(IN_PUT_VCF,DREAM_FILE,UNTREATED_CASES_FILE):
 
 #FILTRER LE DREAM_FILE
 def	dreamFile_Filter(DREAM_FILE,PATH_IN_PUT):
-	
+	#PAHT DU DF0 D ORIGINE
 	PATH_DREAM_FILE = os.path.dirname(DREAM_FILE).strip("/")
+	DREAM_FILE_ORIG = DREAM_FILE.replace(PATH_IN_PUT,"")
+	
 	#*** TRIE DU FICHIER PARSER POUR AVOIR LES UNIQUES
 	#PREPARATION DU SORTE UNIQ, TRIER LE FICHIER PAR CHR, POS, ID_GENE
-	cmd0="sort -k1n,1n -n -k2n,2n -n -k17n,17n -d "+ PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"")
-	
-	cmd1 = cmd0+"> "+ PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted.txt"
+	DREAM_FILE_SORTED=DREAM_FILE_ORIG.strip("_DF0.txt")+"_sorted.txt"
+	cmd0="sort -k1n,1n -n -k2n,2n -n -k17n,17n -d "+ PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"")	
+	cmd1 = cmd0+"> "+ PATH_DREAM_FILE + "/" + DREAM_FILE_SORTED
 	os.system(cmd1)
 	
 	#OBTENTION DES UNIQUES
-	cmd2 =" sort -u " + PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted.txt"
-	cmd3 = cmd2 +"> "+ PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted_Uniq.txt"
+	DREAM_FILE_SORTED_U=DREAM_FILE_SORTED.replace(PATH_IN_PUT,"").strip(".txt")+"_Uniq.txt"
+	cmd2 =" sort -u " + PATH_DREAM_FILE + "/" + DREAM_FILE_SORTED
+	cmd3 = cmd2 +"> "+ PATH_DREAM_FILE + "/" + DREAM_FILE_SORTED_U
 	os.system(cmd3)	
 	
-	#SUPPRIMER FICHIER INTERMEDIAIRE 1
-	os.system("rm " + PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted.txt")
+	#SUPPRIMER FICHIER INTERMEDIAIRE 1 : SORT
+	os.system("rm " + PATH_DREAM_FILE + "/" + DREAM_FILE_SORTED)
 	
 	#CREATION DU FICHIER LISIBLE PAR LES BIOLOGISTES
-	cmd4 = "sort -k1n,1n -n -k2n,2n -n -k17n,17n -d " + PATH_IN_PUT + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted_Uniq.txt"
-	cmd5 = cmd4 + "> " + PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt") + "_DF.txt"
-	
+	DREAM_FILE_FINAL = DREAM_FILE_SORTED_U.strip("_sorted_Uniq.txt") + "_DF.txt"
+	cmd4 = "sort -k1n,1n -n -k2n,2n -n -k17n,17n -d " + PATH_IN_PUT + "/" + DREAM_FILE_SORTED_U
+	cmd5 = cmd4 + "> " + PATH_DREAM_FILE + "/" + DREAM_FILE_FINAL
 	os.system(cmd5)
 	
-	#SUPPRIMER FICHIER INTERMEDIAIRE 2
-	os.system("rm " +  PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt")+"_sorted_Uniq.txt")
+	#SUPPRIMER FICHIER INTERMEDIAIRE 2 : SORT UNIQ
+	os.system("rm " +  PATH_DREAM_FILE + "/" + DREAM_FILE_SORTED_U)
 
-	#SUPPRIMER FICHIER DREAM_FILE NON FILTRE
-	os.system("rm " +  PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,""))
+	#SUPPRIMER FICHIER DREAM_FILE DORIGINE : _DF0
+	os.system("rm " +  PATH_DREAM_FILE + "/" + DREAM_FILE_ORIG)
 	
 	#CREATION DU FICHIER SANS EXONS
 	#__ouverture du fichier
-	dfinPath=PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip(".txt") + "_DF.txt"
-	dfoutPath=PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"").strip("_snpeff_snpsift_OneLineEff_DF.txt") + "_DF_WO_EXONS.txt"
+	dfinPath=PATH_DREAM_FILE.strip("/") + "/" + DREAM_FILE_FINAL
+	dfoutPath=PATH_DREAM_FILE + "/" + DREAM_FILE_FINAL.strip(".txt") + "_WO_EXONS.txt"
 	dfin = open (dfinPath ,"r")
 	dfout = open (dfoutPath,"w")
 	
@@ -885,7 +888,7 @@ def main(argv):
 	
 	#__ CREATION DU FICHIER TXT FORMATE A PARTIR DU VCF  --
 	#DREAM_FILE = PATH_IN_PUT+"/"+file_name_extraction(IN_PUT_VCF)+"_"+str(now.year)+str(now.month)+str(now.day)+"_DF.txt"
-	DREAM_FILE = PATH_IN_PUT+"/"+file_name_extraction(IN_PUT_VCF)+"_"+"DF.txt"
+	DREAM_FILE = PATH_IN_PUT+"/"+file_name_extraction(IN_PUT_VCF)+"_"+"DF0.txt"
 	
 	#__ RECUPERATION DE L ENTETE
 	header_of_dreamFile(DREAM_FILE)	
