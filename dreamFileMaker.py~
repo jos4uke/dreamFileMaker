@@ -438,7 +438,7 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 					return RECUP_Effect
 				else:
 					#print EFFECT_NAME
-					RECUP_Effect = geneID_formatClean(ID_GENE) + "\t" + ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY		
+					RECUP_Effect = ID_GENE + "\t" + ID_TRANSCRIT + "\t" + EFFECT_NAME + "\t" + NBR_BASE +"\t" + OLD_AA_NEW_AA + "\t" + OLD_CODON_NEW_CODON + "\t" + CODON_NUM_CDS + "\t" + CODON_DEGENERACY		
 					#print RECUP_Effect #ok
 					return RECUP_Effect
 				
