@@ -90,7 +90,7 @@ def help_dreamFileMaker_script():
 	print "**************"
 	print  "H E L P  :"
 	print "**************"
-	print " usage : dreamFIleMaker.py  <Input_VCF_OutputFile_From_OLE_Perl_Script>"
+	print " usage : dreamFileMaker.py  <Input_VCF_OutputFile_From_OLE_Perl_Script>"
 	print " -h    : help. "
 	print " NB    : OLE, One Line Effect."
 
