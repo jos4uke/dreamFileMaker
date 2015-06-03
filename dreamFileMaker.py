@@ -5,9 +5,10 @@
 
 #///////////////////////////////////////////////////////////////////////
 __author__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)"#/
-__version__ = "v2.0.1"				   		     				  #/
-__copyright__ = "Copyright (c) 2013-2014 BHN"                         #/
-__license__ = "GROUPE DEV IJPB"			                     		  #/
+__maintainer__ = "Joseph Tran <Joseph.Tran@versailles.inra.fr>"
+__version__ = "v2.0.2"				   		     				  #/
+__copyright__ = "Copyright (c) 2013-2014 BHN - Joseph Tran"                         #/
+__license__ = "GPL v3"			                     		  #/
 #///////////////////////////////////////////////////////////////////////
 
 
@@ -89,7 +90,7 @@ def help_dreamFileMaker_script():
 	print "**************"
 	print  "H E L P  :"
 	print "**************"
-	print " usage : treat_OLE_snpeff.py  <Input_VCF_OutPutFile_From_Perl_Script>"
+	print " usage : dreamFIleMaker.py  <Input_VCF_OutputFile_From_OLE_Perl_Script>"
 	print " -h    : help. "
 	print " NB    : OLE, One Line Effect."
 
@@ -476,7 +477,9 @@ def recupEffect(clnEff,listInfo,UNTREATED_CASES_FILE):
 def snp_affich(GENOME,POS,REF,ALT,QUALITY,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE):
 	""" ****  FONCTION :  ****  \n\tsnp_affich : Fonction qui recupere les colonnes correspondant à un SNP. ****  """
 		
-	CHANGE_TYPE ="SNP"
+        logging.info("DREAM_FILE: " + DREAM_FILE)
+        
+        CHANGE_TYPE ="SNP"
 	COVERAGE = listInfo[0].replace("DP=","")
 	
 	#old version 		
@@ -492,7 +495,9 @@ def snp_affich(GENOME,POS,REF,ALT,QUALITY,listInfo,listCln9,DREAM_FILE,UNTREATED
 	
 	#OUVERTURE EN ECRITURE DU FICHIER DE REVE
 	parsed_file=open(DREAM_FILE,"a")
-	
+
+        #parsed_file.write("C 'est quoi ce bordel")
+
 	if  (len(listInfo)==7) and ("DP4" in listInfo[4]):
 		editLine = RecupFirstClnVCF + calculDP4(listInfo,4)  + RecupLastClnVCF + recupEffect(6,listInfo,UNTREATED_CASES_FILE) +"\n"
 		#print editLine
@@ -530,7 +535,8 @@ def snp_affich(GENOME,POS,REF,ALT,QUALITY,listInfo,listCln9,DREAM_FILE,UNTREATED
 		finrecup.write(str(RecupFirstClnVCF) + "\n")
 		logging.info("WARNING : Untreated cases. "+ str(RecupFirstClnVCF))
 		finrecup.close()
-	parsed_file.close()
+	
+        parsed_file.close()
 	
 #--- FONCTION QUI AFFICHE LES CLN PAR INDEL  ----------------------------------
 def affichClnIndel(GENOME,POS,REF,ALT,QUALITY,CHANGE_TYPE,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE):
@@ -588,7 +594,9 @@ def affichClnIndel(GENOME,POS,REF,ALT,QUALITY,CHANGE_TYPE,listInfo,listCln9,DREA
 def parsing_vcf(IN_PUT_VCF,DREAM_FILE,UNTREATED_CASES_FILE):
 	logging.info("DEBUT ___ ETAPES DE TRAITEMENT DU FICHIER .VCF")
 	print ("DEBUT ___ ETAPES DE TRAITEMENT DU FICHIER .VCF")
-	
+
+        print("DREAM_FILE:" + DREAM_FILE)
+
 	#FONCTION DE TRAITEMENT DU FICHIER DE SORTIE DU SCRIPT PERL / EFFET PAR LIGNE
 	fipvcfWoh=trait_OneLineVcfFile(IN_PUT_VCF)
 
@@ -624,138 +632,145 @@ def parsing_vcf(IN_PUT_VCF,DREAM_FILE,UNTREATED_CASES_FILE):
 	
 		
 	#RECUPERATION DES COLONNES
+        pattern="^Chr[\d]{,2}$"
+        prog=re.compile(pattern)
+        
 	for line in fipvcfWoh:
 		line=line.rstrip("\n\r")
 		recupln=line.split("\t")
-		
-		if recupln[0] == "mitochondria" :
+	
+                if re.match("^#", recupln[0]):
+                        continue 	
+		elif recupln[0] == "mitochondria" :
 			nbr_ln_mitochondria= nbr_ln_mitochondria+1
 				
 		elif recupln[0] == "chloroplast":
 			nbr_ln_chloroplast= nbr_ln_chloroplast+1
 				
-		elif recupln[0] != "mitochondria" and recupln[0] != "chloroplast":
-			GENOME= recupln[0]
-			POS = recupln[1]
-			ID = recupln[2]
-			REF= recupln[3]
-			ALT= recupln[4]
-			QUALITY = recupln[5]
-			FILTER = recupln[6]
-			INFO = recupln[7]
-			
-			#WHO =  recupln[8]
-			#print WHO #:GT:PL:GQ
-	
-			#Comptage du nombre de lignes pour les chromosomes
-			nbr_ln_vcf_recup= nbr_ln_vcf_recup+1
-				
-			#VERIFICATION DU NOMBRE DE COLONNE DANS LE CHAMPS INFOS
-			listInfo=INFO.split(";")
-			lengthListInfo.append(len(listInfo))
-			
-			#RECUPERATION CHAMPS POUR L HOMOZYGOTIE
-			HOMOHET_BASE_N1_N2_N3 = recupln[9]
-			listCln9=HOMOHET_BASE_N1_N2_N3.split(":")
-			
-			#MODIF RAPHAEL
-			GENOME=GENOME.replace("Chr","")
-			REF = REF.replace("*","X")
-			
-			#CAS UN SEUL ALLEL ALTERNATIF
-			#CAS SNP
-			if ("INDEL" not in listInfo[0]) and ("," not in ALT):
-								
-					#RECUPERATION DES COLONNES
-					snp_affich(GENOME,POS,REF,ALT,QUALITY,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
-					
-					#COMPTAGE DE VERIFICATION
-					nbr_ln_snp_1_alt = nbr_ln_snp_1_alt + 1
-					nbr_ln_snp_recup = nbr_ln_snp_recup + 1
-			#CAS DEUX ALLELES ALTERNATIF
-			#CAS SNP
-			elif ("INDEL" not in listInfo[0]) and (","  in ALT):
-										
-					#fout_parsVCF
-					altList=ALT.split(",")
-					for alterallel in altList:
-						ALT = alterallel
+                elif prog.match(recupln[0]) == "None": 
+                        # cas si le genome est different de (chloro, mito, 1-5)
+                        finrecup = open(UNTREATED_CASES_FILE,"a")
+                        finrecup.write(str(RecupFirstClnVCF) + "\n")
+                        logging.info("WARNING : Untreated cases.Unknown Genome "+ str(RecupFirstClnVCF))
+                        finrecup.close()
+                        break 
 
-					#RECUPERATION DES COLONNES
-					snp_affich(GENOME,POS,REF,ALT,QUALITY,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
-					
-					#COMPTAGE DE VERIFICATION
-					nbr_ln_snp_2_alt = nbr_ln_snp_2_alt + 1
-					nbr_ln_snp_recup = nbr_ln_snp_recup + 1
-			
-			#CAS UN SEUL ALLEL ALTERNATIF
-			#CAS INDEL
-			elif ("INDEL" in listInfo[0]) and ("," not in ALT) :
-				#CAS INSERTION	
-				if len(ALT) > len(REF) :
-					CHANGE_TYPE = "INS"	
-					#----------
-					#AFFICHAGE CLN
-					affichClnIndel(GENOME,POS,REF,ALT,QUALITY,CHANGE_TYPE,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
-					#----------
-					nbr_ln_ins_recup = nbr_ln_ins_recup + 1
-					nbr_ln_ins_1_alt = nbr_ln_ins_1_alt +1			
+                # parse line for [mitochondria, chloroplast, Chr[\d]{,2}]
+                GENOME= recupln[0]
+		#print("recupln: " + ", ".join(recupln))
+                POS = recupln[1]
+		ID = recupln[2]
+		REF= recupln[3]
+		ALT= recupln[4]
+		QUALITY = recupln[5]
+		FILTER = recupln[6]
+		INFO = recupln[7]
+		
+		#WHO =  recupln[8]
+		#print WHO #:GT:PL:GQ
 	
-				#CAS DELETION
-				elif len(ALT) < len(REF) :
-					CHANGE_TYPE = "DEL"
-					#----------
-					#AFFICHAGE CLN
-					affichClnIndel(GENOME,POS,REF,ALT,QUALITY,CHANGE_TYPE,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
-					#----------												
-					nbr_ln_del_1_alt = nbr_ln_del_1_alt +1
-					nbr_ln_del_recup = nbr_ln_del_recup + 1						
-				nbr_ln_indel_recup = nbr_ln_indel_recup + 1
+		#Comptage du nombre de lignes pour les chromosomes
+		nbr_ln_vcf_recup= nbr_ln_vcf_recup+1
+		    
+		#VERIFICATION DU NOMBRE DE COLONNE DANS LE CHAMPS INFOS
+		listInfo=INFO.split(";")
+		lengthListInfo.append(len(listInfo))
+		
+		#RECUPERATION CHAMPS POUR L HOMOZYGOTIE
+		HOMOHET_BASE_N1_N2_N3 = recupln[9]
+		listCln9=HOMOHET_BASE_N1_N2_N3.split(":")
+		
+		#MODIF RAPHAEL
+		GENOME=GENOME.replace("Chr","")
+		REF = REF.replace("*","X")
+		
+		#CAS UN SEUL ALLEL ALTERNATIF
+		#CAS SNP
+		if ("INDEL" not in listInfo[0]) and ("," not in ALT):
+						    
+			    #RECUPERATION DES COLONNES
+			    snp_affich(GENOME,POS,REF,ALT,QUALITY,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
+			    
+			    #COMPTAGE DE VERIFICATION
+			    nbr_ln_snp_1_alt = nbr_ln_snp_1_alt + 1
+			    nbr_ln_snp_recup = nbr_ln_snp_recup + 1
+		#CAS DEUX ALLELES ALTERNATIF
+		#CAS SNP
+		elif ("INDEL" not in listInfo[0]) and (","  in ALT):
+								    
+			    #fout_parsVCF
+			    altList=ALT.split(",")
+			    for alterallel in altList:
+				    ALT = alterallel
 
-					
-			#CAS DEUX ALLELES ALTERNATIF
-			#CAS INDEL	
-			elif ("INDEL" in listInfo[0]) and ("," in ALT) :
-				#CAS INSERTION
-				if len(ALT) > len(REF) :
-					CHANGE_TYPE = "INS"
-					altList=ALT.split(",")
-					for alterallel in altList:
-						ALT = alterallel															
-						#----------
-						#AFFICHAGE CLN
-						affichClnIndel(GENOME,POS,REF,ALT,QUALITY,CHANGE_TYPE,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
-						#----------
-						nbr_ln_ins_2_alt = 	nbr_ln_ins_2_alt +1
-						nbr_ln_ins_recup = nbr_ln_ins_recup + 1
-				#CAS DELETION				
-				elif len(ALT) < len(REF) :	
-					CHANGE_TYPE = "DEL"
-					altList=ALT.split(",")						
-					for alterallel in altList:
-						ALT = alterallel																
-						#----------
-						#AFFICHAGE CLN
-						affichClnIndel(GENOME,POS,REF,ALT,QUALITY,CHANGE_TYPE,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
-						#----------
-						nbr_ln_del_2_alt = nbr_ln_del_2_alt +1
-						nbr_ln_del_recup = nbr_ln_del_recup + 1					
-				nbr_ln_indel_recup = nbr_ln_indel_recup + 1
-				
-			else:
-				#cas si la colonne 0 du champs info est differente de DP et INDEL
-				finrecup = open(UNTREATED_CASES_FILE,"a")
-				finrecup.write(str(RecupFirstClnVCF) + "\n")
-				logging.info("WARNING : Untreated cases.First Cln In INFO different then DP/INDEL "+ str(RecupFirstClnVCF))
-				finrecup.close()	
-					
-								
-		else:
-			# cas si le genome est different de (chloro, mito, 1-5)
-			finrecup = open(UNTREATED_CASES_FILE,"a")
-			finrecup.write(str(RecupFirstClnVCF) + "\n")
-			logging.info("WARNING : Untreated cases.Unknown Genome "+ str(RecupFirstClnVCF))
-			finrecup.close()				
+			    #RECUPERATION DES COLONNES
+			    snp_affich(GENOME,POS,REF,ALT,QUALITY,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
+			    
+			    #COMPTAGE DE VERIFICATION
+			    nbr_ln_snp_2_alt = nbr_ln_snp_2_alt + 1
+			    nbr_ln_snp_recup = nbr_ln_snp_recup + 1
+		
+		#CAS UN SEUL ALLEL ALTERNATIF
+		#CAS INDEL
+		elif ("INDEL" in listInfo[0]) and ("," not in ALT) :
+		    #CAS INSERTION	
+		    if len(ALT) > len(REF) :
+			    CHANGE_TYPE = "INS"	
+			    #----------
+			    #AFFICHAGE CLN
+			    affichClnIndel(GENOME,POS,REF,ALT,QUALITY,CHANGE_TYPE,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
+			    #----------
+			    nbr_ln_ins_recup = nbr_ln_ins_recup + 1
+			    nbr_ln_ins_1_alt = nbr_ln_ins_1_alt +1			
+	
+		    #CAS DELETION
+		    elif len(ALT) < len(REF) :
+			    CHANGE_TYPE = "DEL"
+			    #----------
+			    #AFFICHAGE CLN
+			    affichClnIndel(GENOME,POS,REF,ALT,QUALITY,CHANGE_TYPE,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
+			    #----------												
+			    nbr_ln_del_1_alt = nbr_ln_del_1_alt +1
+			    nbr_ln_del_recup = nbr_ln_del_recup + 1						
+		    nbr_ln_indel_recup = nbr_ln_indel_recup + 1
+
+			    
+		#CAS DEUX ALLELES ALTERNATIF
+		#CAS INDEL	
+		elif ("INDEL" in listInfo[0]) and ("," in ALT) :
+		    #CAS INSERTION
+		    if len(ALT) > len(REF) :
+			    CHANGE_TYPE = "INS"
+			    altList=ALT.split(",")
+			    for alterallel in altList:
+				    ALT = alterallel															
+				    #----------
+				    #AFFICHAGE CLN
+				    affichClnIndel(GENOME,POS,REF,ALT,QUALITY,CHANGE_TYPE,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
+				    #----------
+				    nbr_ln_ins_2_alt = 	nbr_ln_ins_2_alt +1
+				    nbr_ln_ins_recup = nbr_ln_ins_recup + 1
+		    #CAS DELETION				
+		    elif len(ALT) < len(REF) :	
+			    CHANGE_TYPE = "DEL"
+			    altList=ALT.split(",")						
+			    for alterallel in altList:
+				    ALT = alterallel																
+				    #----------
+				    #AFFICHAGE CLN
+				    affichClnIndel(GENOME,POS,REF,ALT,QUALITY,CHANGE_TYPE,listInfo,listCln9,DREAM_FILE,UNTREATED_CASES_FILE)
+				    #----------
+				    nbr_ln_del_2_alt = nbr_ln_del_2_alt +1
+				    nbr_ln_del_recup = nbr_ln_del_recup + 1					
+                    nbr_ln_indel_recup = nbr_ln_indel_recup + 1
+		    
+                else:
+                        #cas si la colonne 0 du champs info est differente de DP et INDEL
+                        finrecup = open(UNTREATED_CASES_FILE,"a")
+                        finrecup.write(str(RecupFirstClnVCF) + "\n")
+                        logging.info("WARNING : Untreated cases.First Cln In INFO different then DP/INDEL "+ str(RecupFirstClnVCF))
+                        finrecup.close()	
+            
 	#print "CTRL/NOMBRE DE COLONNES DANS LE CHAMPS INFO : " + str(sorted(set(lengthListInfo)))
 				
 	logging.info("FIN ___ ETAPES DE TRAITEMENT DU FICHIER .VCF")
@@ -765,12 +780,17 @@ def parsing_vcf(IN_PUT_VCF,DREAM_FILE,UNTREATED_CASES_FILE):
 def	dreamFile_Filter(DREAM_FILE,PATH_IN_PUT):
 	#PAHT DU DF0 D ORIGINE
 	PATH_DREAM_FILE = os.path.dirname(DREAM_FILE).strip("/")
-	DREAM_FILE_ORIG = DREAM_FILE.replace(PATH_IN_PUT,"")
+	DREAM_FILE_ORIG = os.path.basename(DREAM_FILE)
 	
+        print("DREAM_FILE: " + DREAM_FILE)
+        print("PATH_IN_PUT: " + PATH_IN_PUT)
+        print("PATH_DREAM_FILE: " + PATH_DREAM_FILE)
+        print("DREAM_FILE_ORIG: " + DREAM_FILE_ORIG)
+
 	#*** TRIE DU FICHIER PARSER POUR AVOIR LES UNIQUES
 	#PREPARATION DU SORTE UNIQ, TRIER LE FICHIER PAR CHR, POS, ID_GENE
 	DREAM_FILE_SORTED=DREAM_FILE_ORIG.strip("_DF0.txt")+"_sorted.txt"
-	cmd0="sort -k1n,1n -n -k2n,2n -n -k17n,17n -d "+ PATH_DREAM_FILE + "/" + DREAM_FILE.replace(PATH_IN_PUT,"")	
+	cmd0="sort -k1n,1n -n -k2n,2n -n -k17n,17n -d "+ PATH_DREAM_FILE + "/" + DREAM_FILE_ORIG
 	cmd1 = cmd0+"> "+ PATH_DREAM_FILE + "/" + DREAM_FILE_SORTED
 	os.system(cmd1)
 	
